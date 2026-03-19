@@ -1,97 +1,106 @@
-# Benefit Illustration Module
+# NexGen Benefit Illustration Suite
 
-This project contains a highly scalable, secure Node.js backend and a React frontend for the Benefit Illustration calculation module. It is designed to evaluate policy logic, handle bulk illustration generation, and ensure data sensitivity protocols are followed.
+NexGen is an enterprise-grade Benefit Illustration engine designed for high-performance insurance simulations. It features a clustered Node.js backend, a responsive React frontend, and a resilient infrastructure stack using PostgreSQL and Redis.
 
-## Prerequisites
-- **Node.js**: v18 or later
-- **Database**: PostgreSQL (or YugabyteDB)
-- **Message Broker & Cache**: Redis
-- **Docker**: For production deployment, Prometheus, and Grafana.
+## 📋 Prerequisites
 
-## Project Setup
+Before starting, ensure you have the following installed:
+- **Node.js (v18+)**: Recommended LTS version.
+- **Docker Desktop**: Required for the local database, cache, and monitoring stack.
+- **Git**: For version control.
+- **PostgreSQL Client (Optional)**: Such as `psql` or `pgAdmin` for manual database inspection.
 
-1. **Install Dependencies**
-   Navigate to the `backend` and `frontend` directories and install dependencies:
-   ```bash
-   cd backend
-   npm install
+---
 
-   cd ../frontend
-   npm install
-   ```
+## 🛠️ 1. Local Development Setup
 
-2. **Environment Variables**
-   In the `backend` directory, there is an `.env.example` file. Copy it to `.env` and fill in your sensitive credentials like DB passwords, Redis connection string, and JWT Secret:
-   ```bash
-   # From the backend directory
-   cp .env.example .env
-   ```
-
-## Running the Application Locally (Development Environment)
-
-For local development, we use `nodemon` to automatically restart the server when file changes are detected.
-
-1. **Start the Backend server with Nodemon**
-   Open a terminal in the `backend` directory and run:
-   ```bash
-   npm run dev
-   ```
-   *Note: Ensure your PostgreSQL and Redis instances are running locally or via Docker before starting the server.*
-
-2. **Start the Frontend Development Server**
-   Open a terminal in the `frontend` directory and run:
-   ```bash
-   npm run dev
-   ```
-
-## Running for Production
-
-For a production environment, you should avoid using `nodemon`. The project uses a multi-container Docker compose setup to run the Database, Redis, the Node.js API, Background Workers, Prometheus, and Grafana.
-
-### Using Lightweight Multi-Stage Docker Build (Recommended)
-
-To compile the proprietary codebase into an obfuscated artifact and spin up the Alpine multi-stage stack, run the powerful build script provided:
-
+### A. Clone & Install
 ```bash
-# Set execution permissions if you haven't natively
-chmod +x mkdocker.sh
+# Install root documentation tools
+npm install
 
-# Run the full build with optional custom tags (api-tag, ui-tag)
-./mkdocker.sh benefit-api:v2 benefit-ui:v2
+# Install Backend dependencies
+cd backend && npm install
+
+# Install Frontend dependencies
+cd ../frontend && npm install
 ```
 
-You can then run the built images using standard Docker run commands, or use the provided `docker-compose.yml` to automatically orchestrate the PostgeSQL, PgBouncer, Redis, Graphing, API, and UI containers:
+### B. Infrastructure (Docker)
+In the project root, start the supporting services:
+```bash
+docker compose up -d
+```
+*This launches PostgreSQL (Port 5432), Redis (Port 6379), Prometheus (Port 9090), and Grafana (Port 3001).*
+
+### C. Environment Configuration
+Navigate to the `backend` directory and create your `.env` file:
+```bash
+cp .env.example .env
+```
+Update the `.env` with your local credentials (see [Environment Variables](#-environment-variables) below).
+
+### D. Running the Apps
+Open two terminals:
+- **Backend**: `cd backend && npm run dev`
+- **Frontend**: `cd frontend && npm run dev`
+
+---
+
+## 🚀 2. Production Deployment
+
+### A. Docker Build (Proprietary Obfuscation)
+The project includes a `mkdocker.sh` script to build production-ready, obfuscated images:
+```bash
+chmod +x mkdocker.sh
+./mkdocker.sh benefit-api:v1 benefit-ui:v1
+```
+
+### B. Orchestration
+Use the production-grade `docker-compose.yml` (located in `backend/` or root) to deploy the full stack:
 ```bash
 cd backend
-docker-compose up -d
+docker compose -f docker-compose.yml up -d
 ```
+*In production, ensure you use PgBouncer for connection scaling and Redis Sentinel for failover.*
 
-### Running Node.js directly in Production
+---
 
-If you are not using Docker for the Node process (e.g., using PM2 or deploying to a PaaS):
-```bash
-# Set NODE_ENV to production
-export NODE_ENV=production
+## 🔐 3. Environment Variables
 
-# Start the application using regular node
-npm start
-```
-*If deploying the React frontend, run `npm run build` in the `frontend` directory and serve the `dist` folder.*
+The backend requires the following variables in `.env`:
+
+| Variable | Description | Example / Default |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@localhost:5432/db` |
+| `REDIS_PASSWORD` | Security password for Redis | `your_redis_pass` |
+| `JWT_SECRET` | Secret key for token signing | `use-a-long-random-string` |
+| `ENCRYPTION_KEY` | 64-char hex key for PII masking | `32-byte-hex-string` |
+| `ALLOWED_ORIGINS`| CORS whitelist (comma separated) | `http://localhost:5173,https://app.com` |
+| `PORT` | API Listening Port | `5000` |
+
+---
+
+## 📊 4. Monitoring & Stress Testing
+
+- **Prometheus**: Access `http://localhost:9090` to view raw metrics.
+- **Grafana**: Access `http://localhost:3001` (user: `admin`, pass: `admin`) for visual dashboards.
+- **Stress Test**: `npx autocannon -c 100 -d 20 http://localhost:5000/api/calculations`
+
+---
 
 ## 🛡️ Failure Management & Resilience (War Cases)
-
-The system is designed to handle failures gracefully at every layer:
 
 | Scenario | Component | Resilience Strategy | Outcome |
 | :--- | :--- | :--- | :--- |
 | **Worker Crash** | API Cluster | Master auto-forks new worker | Zero downtime |
-| **Redis Down** | Cache/Rate Limit | Graceful fallback or fail-fast | Data safety preserved |
-| **DB Overload**| PostgreSQL | Parameterized timeouts & Pooling | Prevents system freeze |
-| **Brute Force**| Security | IP-based Redis Rate Limiting | Blocks attacker at edge |
-| **XSS Attempt** | Frontend | Strict CSP & Sanitization | Script execution blocked |
+| **Redis Down** | Cache/Rate Limit| Sentinel handles failover | High Availability |
+| **DB Overload** | PostgreSQL | PgBouncer + Read Replicas | Prevents freeze |
 
-## 📚 Documentation
-- [Architecture Master](documents/ARCHITECTURE_MASTER.md): Deep dive into Clustering and Job Lifecycles.
-- [Database Deep-Dive](documents/DATABASE_DEEP_DIVE.md): UUIDv7, JSONB, and Performance War Cases.
-- [Security & Resilience](documents/SECURITY_RESILIENCE_MASTER.md): Defense in depth and attack mitigation.
-- [Ultimate Testing Guide](documents/ULTIMATE_TESTING_MASTER.md): Local setup, Stress testing, and Monitoring.
+---
+
+## 📚 Technical Deep-Dives
+- [Architecture Master](documents/ARCHITECTURE_MASTER.md): Clustering, Redis Sentinel, and Pub/Sub mechanics.
+- [Database Deep-Dive](documents/DATABASE_DEEP_DIVE.md): UUIDv7, JSONB vs Normalized, and Scaling.
+- [Security & Resilience](documents/SECURITY_RESILIENCE_MASTER.md): PII Masking, CSP, and XSS defense.
+- [Ultimate Testing Guide](documents/ULTIMATE_TESTING_MASTER.md): Step-by-step local verification.
