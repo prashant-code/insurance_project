@@ -18,7 +18,7 @@
       }
     }
   },
-  "forwardPorts": [3000, 5000, 6379, 5432],
+  "forwardPorts": [3000, 5000, 6379, 5432, 9090, 3001],
   "portsAttributes": {
     "3000": {
       "label": "Frontend UI",
@@ -26,6 +26,14 @@
     },
     "5000": {
       "label": "Backend API",
+      "onAutoForward": "silent"
+    },
+    "9090": {
+      "label": "Prometheus Metrics",
+      "onAutoForward": "silent"
+    },
+    "3001": {
+      "label": "Grafana Dashboard",
       "onAutoForward": "silent"
     }
   },
