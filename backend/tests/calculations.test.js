@@ -6,7 +6,7 @@ describe('Benefit Calculations Mathematical Engine', () => {
     const policy_term = 10;
     const premium = 5000;
     
-    const results = calculateBenefits(age, policy_term, premium);
+    const results = calculateBenefits(age, policy_term, policy_term, premium);
     
     expect(results).toHaveLength(10);
     expect(results[0].year).toBe(1);
@@ -20,7 +20,7 @@ describe('Benefit Calculations Mathematical Engine', () => {
     const policy_term = 3; 
     const premium = 10000;
     
-    const results = calculateBenefits(age, policy_term, premium);
+    const results = calculateBenefits(age, policy_term, policy_term, premium);
     
     // Year 1: (0 + 10000) * 1.08 = 10800
     expect(results[0].projected_fund_value).toBe(10800);

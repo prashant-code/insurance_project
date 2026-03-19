@@ -8,8 +8,9 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "5000:5000"
     environment:
+      - PORT=5000
       - DB_ENGINE=postgres
       - DATABASE_URL=postgresql://user:password@pgbouncer:6432/benefit_db
       - REDIS_URL=redis://redis:6379
@@ -28,6 +29,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: benefit_db
+      POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=md5"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       # Mount the schema automatically so the tables construct on boot
@@ -41,13 +43,15 @@ services:
   pgbouncer:
     image: edoburu/pgbouncer:latest
     environment:
-      DB_USER: user
-      DB_PASSWORD: password
-      DB_HOST: postgres
-      DB_NAME: benefit_db
-      POOL_MODE: transaction
-      MAX_CLIENT_CONN: 1000
-      DEFAULT_POOL_SIZE: 100
+      - LISTEN_PORT=6432
+      - AUTH_TYPE=md5
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_HOST=postgres
+      - DB_NAME=benefit_db
+      - POOL_MODE=transaction
+      - MAX_CLIENT_CONN=1000
+      - DEFAULT_POOL_SIZE=100
     ports:
       - "6432:6432" # Local nodemon dev targets this port!
     depends_on:
@@ -73,6 +77,20 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      - backend_network
+
+  # Grafana for Metrics Visualisation
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
     networks:
       - backend_network
 

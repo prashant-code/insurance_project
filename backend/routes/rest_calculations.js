@@ -22,19 +22,25 @@ const calculationSchema = {
 
 // Pure mathematical engine
 // For exact replication of the Excel logic, equations should be dynamically adjusted here.
-export const calculateBenefits = (age, policy_term, premium_amount) => {
+export const calculateBenefits = (age, policy_term, premium_payment_term, premium_amount) => {
+  age = Number(age);
+  policy_term = Number(policy_term);
+  premium_payment_term = Number(premium_payment_term);
+  premium_amount = Number(premium_amount);
+
   const projected_benefits = [];
   let current_corpus = 0;
   const ASSUMED_INTEREST_RATE = 0.08; // 8%
 
   for (let year = 1; year <= policy_term; year++) {
-    current_corpus += premium_amount; // Premium paid
+    const premium_paid = year <= premium_payment_term ? premium_amount : 0;
+    current_corpus += premium_paid; // Premium paid
     current_corpus += (current_corpus * ASSUMED_INTEREST_RATE); // Interest accrued
     
     projected_benefits.push({
       year,
       age: age + year,
-      premium_paid: premium_amount,
+      premium_paid,
       projected_fund_value: parseFloat(current_corpus.toFixed(2)),
       death_benefit: parseFloat(Math.max(premium_amount * 10, current_corpus).toFixed(2))
     });
@@ -50,8 +56,12 @@ router.post('/calculate', authAndValidate(calculationSchema, verifyAuth), async 
     return res.status(400).json({ error: 'Premium payment term cannot exceed policy term.' });
   }
 
-  // Determine user ID securely from token (Hybrid Auth context)
-  const user_id = process.env.SYSTEM_USER_ID || '00000000-0000-0000-0000-000000000000'; 
+  if (age + policy_term > 85) {
+    return res.status(400).json({ error: 'Maximum projection maturity age cannot exceed 85.' });
+  }
+
+  // Determine user ID securely from authenticated user
+  const user_id = req.user.id;
   const request_id = generateId();
 
   try {
@@ -69,7 +79,7 @@ router.post('/calculate', authAndValidate(calculationSchema, verifyAuth), async 
     await db.query(reqInsert, [request_id, user_id, product_id, age, policy_term, premium_payment_term, premium_amount]);
 
     // Perform massive CPU bounds check and math logic
-    const projected_benefits = calculateBenefits(age, policy_term, premium_amount);
+    const projected_benefits = calculateBenefits(age, policy_term, premium_payment_term, premium_amount);
 
     // Persist as a highly-efficient JSONB object structure
     const resInsert = `

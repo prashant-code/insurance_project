@@ -1,11 +1,24 @@
 ### Health and Service Status
-GET http://localhost:3000/health
+GET http://localhost:5000/health
 
 ### Prometheus Performance Metrics
-GET http://localhost:3000/metrics
+GET http://localhost:5000/metrics
+
+### User Registration
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "first_name": "Test",
+  "last_name": "User",
+  "dob": "1990-01-01",
+  "mobile_number": "1234567890"
+}
 
 ### Login (Supports both JSON body and HTTP Basic Auth)
-POST http://localhost:3000/api/auth/login
+POST http://localhost:5000/api/auth/login
 Content-Type: application/json
 
 {
@@ -14,8 +27,8 @@ Content-Type: application/json
 }
 
 ### Secure Endpoint Test (Requires JWT from Login)
-POST http://localhost:3000/api/auth/secure-ping
-Authorization: Bearer <YOUR_TOKEN_HERE>
+POST http://localhost:5000/api/auth/secure-ping
+Authorization: Basic test@example.com:password123
 Content-Type: application/json
 
 {
@@ -23,8 +36,13 @@ Content-Type: application/json
 }
 
 ### Standard Single UI Calculation (Requires JWT)
-POST http://localhost:3000/api/calculations/calculate
-Authorization: Bearer <YOUR_TOKEN_HERE>
+# Available product_id values:
+# 00000000-0000-0000-0000-000000000000 → Standard Term Life
+# 11111111-1111-1111-1111-111111111111 → Endowment Plan Classic
+# 22222222-2222-2222-2222-222222222222 → Money Back Plan (20yr)
+# 33333333-3333-3333-3333-333333333333 → ULIP Growth Fund
+POST http://localhost:5000/api/calculations/calculate
+Authorization: Basic test@example.com:password123
 Content-Type: application/json
 
 {
@@ -36,21 +54,23 @@ Content-Type: application/json
 }
 
 ### Scalable Bulk Calculation Mechanism (Requires JWT)
-POST http://localhost:3000/api/bulk/upload
-Authorization: Bearer <YOUR_TOKEN_HERE>
+# Uploads multiple policies for async background processing
+# premium_amount is in INR (₹)
+POST http://localhost:5000/api/bulk/upload
+Authorization: Basic test@example.com:password123
 Content-Type: application/json
 
 {
   "calculations": [
     {
-      "product_id": "01000000-0000-0000-0000-000000000000",
+      "product_id": "00000000-0000-0000-0000-000000000000",
       "age": 40,
       "policy_term": 15,
       "premium_payment_term": 10,
       "premium_amount": 100000
     },
     {
-      "product_id": "02000000-0000-0000-0000-000000000000",
+      "product_id": "00000000-0000-0000-0000-000000000000",
       "age": 25,
       "policy_term": 30,
       "premium_payment_term": 30,
@@ -58,3 +78,15 @@ Content-Type: application/json
     }
   ]
 }
+
+### Retrieve Current User Profile (Requires JWT or Basic Auth)
+GET http://localhost:5000/api/auth/me
+Authorization: Basic test@example.com:password123
+
+### Logout User Session
+POST http://localhost:5000/api/auth/logout
+
+### Retrieve Bulk Upload Batch Results (Requires JWT or Basic Auth)
+# Note: Replace {batch_id} with the actual UUID returned from the /upload endpoint above
+GET http://localhost:5000/api/bulk/019d0647-c717-7925-984b-8a9c2d9528c3/results
+Authorization: Basic test@example.com:password123

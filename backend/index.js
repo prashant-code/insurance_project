@@ -54,12 +54,16 @@ if (cluster.isPrimary) {
     },
   }));
 
-  const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:5173'];
   app.use(cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      const allowedOrigins = process.env.ALLOWED_ORIGINS 
+        ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) 
+        : ['http://localhost:3000', 'http://localhost:5173'];
+        
+      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
+        console.warn(`❌ CORS Rejecting origin: ${origin}`);
         callback(new Error('❌ Restricted by CORS Security Policy'));
       }
     },

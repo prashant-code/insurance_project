@@ -28,6 +28,7 @@ export const startWorker = async () => {
           const projected_benefits = calculateBenefits(
              request.age, 
              request.policy_term, 
+             request.premium_payment_term,
              request.premium_amount
           );
 

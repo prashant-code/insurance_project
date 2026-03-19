@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { generateId } from '../utils/uuid.js';
 import { maskString, maskPhone, maskDate } from '../utils/encryption.js';
+import db from '../config/database.js';
 
 const router = express.Router();
 
@@ -51,6 +52,7 @@ router.post('/register', authAndValidate(registerSchema, (req, res, next) => nex
 
     res.status(201).json({ message: 'User registered successfully', user: newUser.rows[0] });
   } catch (error) {
+    console.error('Registration Error:', error);
     res.status(500).json({ error: 'Error registering user' });
   }
 });
@@ -103,8 +105,16 @@ router.post('/secure-ping', authAndValidate(dummyProtectedSchema, verifyAuth), (
   res.json({ message: 'Secure ping accepted', user: req.user });
 });
 
-router.get('/me', verifyAuth, (req, res) => {
-  res.json({ user: req.user });
+router.get('/me', verifyAuth, async (req, res) => {
+  try {
+    const userResult = await db.query('SELECT id, email, role, first_name, last_name, dob, mobile_number FROM users WHERE id = $1', [req.user.id]);
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ user: userResult.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching user' });
+  }
 });
 
 router.post('/logout', (req, res) => {

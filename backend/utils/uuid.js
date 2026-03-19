@@ -1,4 +1,4 @@
-import { v7 as uuidv7 } from 'uuidv7';
+import { uuidv7 } from 'uuidv7';
 
 export const generateId = () => {
   return uuidv7();

@@ -1,0 +1,16 @@
+{
+  "server": {
+    "port": 5000
+  },
+  "database": {
+    "engine": "postgres",
+    "poolMax": 20
+  },
+  "redis": {
+    "url": "redis://localhost:6379",
+    "rateLimit": {
+      "capacity": 100,
+      "refillRate": 10
+    }
+  }
+}

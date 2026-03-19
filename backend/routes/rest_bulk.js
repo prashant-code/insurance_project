@@ -34,7 +34,7 @@ const bulkSchema = {
 router.post('/upload', authAndValidate(bulkSchema, verifyAuth), async (req, res) => {
   const { calculations } = req.body;
   const batch_id = generateId();
-  const user_id = process.env.SYSTEM_USER_ID || '00000000-0000-0000-0000-000000000000';
+  const user_id = req.user.id;
 
   try {
     // Concurrent batched insertion utilizing Promise.allSettled for maximum asynchronous DB throughput
@@ -69,6 +69,23 @@ router.post('/upload', authAndValidate(bulkSchema, verifyAuth), async (req, res)
   } catch (error) {
     logger.error('Bulk Upload Error:', error);
     res.status(500).json({ error: 'Failed to ingest bulk request.' });
+  }
+});
+
+router.get('/:batch_id/results', verifyAuth, async (req, res) => {
+  const { batch_id } = req.params;
+  try {
+    const result = await db.query(`
+      SELECT r.id as request_id, r.product_id, r.age, r.policy_term, r.premium_amount, r.status, res.projected_benefits
+      FROM illustration_requests r
+      LEFT JOIN illustration_results res ON r.id = res.request_id
+      WHERE r.batch_id = $1 AND r.user_id = $2
+    `, [batch_id, req.user.id]);
+    
+    res.json({ batch_id, results: result.rows });
+  } catch (error) {
+    logger.error('Failed to fetch batch results:', error);
+    res.status(500).json({ error: 'Failed to fetch batch results.' });
   }
 });
 

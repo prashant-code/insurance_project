@@ -52,148 +52,93 @@ const Login = () => {
     }
   };
 
-  const inputClasses = "w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all outline-none text-sm font-medium placeholder:text-slate-400 shadow-sm";
+  const inputClasses = "w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-slate-900/10 focus:border-slate-900 transition-all duration-300 outline-none text-sm font-semibold text-slate-900 placeholder:text-slate-400 placeholder:font-medium shadow-sm";
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc] text-slate-900 overflow-hidden font-sans">
-      {/* Left Side: Branding & Marketing - EU Style */}
-      <div className="hidden lg:flex lg:w-1/2 bg-brand-950 p-12 flex-col justify-between relative overflow-hidden">
-        {/* Abstract Background Decoration */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-500 opacity-10 blur-[100px] -mr-48 -mt-48 rounded-full" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-400 opacity-5 blur-[120px] -ml-48 -mb-48 rounded-full" />
-        
-        <div className="relative z-10">
+    <div className="min-h-screen bg-[#fcfdfe] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      {/* Decorative enterprise background blur elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-100/40 rounded-full blur-[120px] pointer-events-none" />
+      
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo */}
+        <div className="text-center mb-10">
           <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 text-brand-50 mb-12"
+            initial={{ scale: 0.9, opacity: 0 }} 
+            animate={{ scale: 1, opacity: 1 }} 
+            transition={{ type: "spring", duration: 0.8 }}
+            className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-tr from-slate-900 to-slate-800 rounded-[1.5rem] shadow-xl shadow-slate-900/20 mb-6 relative group"
           >
-            <div className="p-2 bg-brand-500 rounded-lg">
-              <BarChart3 className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">NexGen Illustrations</span>
+            <div className="absolute inset-0 bg-white/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+            <BarChart3 className="w-10 h-10 text-white group-hover:scale-110 transition-transform duration-500" />
           </motion.div>
-
-          <div className="space-y-8 max-w-lg">
-            <motion.h1 
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-5xl font-extrabold text-white leading-tight"
-            >
-              Enterprise Grade <br />
-              <span className="text-brand-400 border-b-4 border-brand-500/30">Benefit Modeling</span>
-            </motion.h1>
-            
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-lg text-slate-400 leading-relaxed font-light"
-            >
-              Seamlessly calculate, simulate, and illustrate millions of policy projections with our state-of-the-art computational engine. Built for performance, secured for life.
-            </motion.p>
-          </div>
+          <motion.h1 
+            initial={{ y: 10, opacity: 0 }} 
+            animate={{ y: 0, opacity: 1 }} 
+            transition={{ delay: 0.1 }}
+            className="text-4xl font-black text-slate-900 tracking-tight"
+          >
+            NEXGEN
+          </motion.h1>
+          <motion.p 
+            initial={{ y: 10, opacity: 0 }} 
+            animate={{ y: 0, opacity: 1 }} 
+            transition={{ delay: 0.2 }}
+            className="text-slate-500 font-semibold mt-2 text-base tracking-wide"
+          >
+            Secure Platform Access
+          </motion.p>
         </div>
 
-        <div className="relative z-10 grid grid-cols-2 gap-6 mt-12">
-          {[
-            { icon: ShieldCheck, title: "AES-256 Secure", desc: "Military-grade encryption" },
-            { icon: Zap, title: "Nano-Performance", desc: "Sub-ms calculations" },
-            { icon: Globe, title: "EU Compliant", desc: "Data residency ready" },
-            { icon: BarChart3, title: "Dynamic Logic", desc: "Excel-parity engine" }
-          ].map((item, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 + (i * 0.1) }}
-              className="flex gap-4 items-start group"
-            >
-              <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
-                <item.icon className="w-5 h-5 text-brand-400" />
-              </div>
-              <div>
-                <h3 className="text-white font-semibold text-sm">{item.title}</h3>
-                <p className="text-slate-500 text-xs mt-0.5">{item.desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="relative z-10 flex items-center justify-between pt-8 border-t border-white/5">
-          <span className="text-xs text-slate-500 font-code tracking-widest uppercase">v2.4.0-Stable</span>
-          <div className="flex gap-4">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-            <span className="text-xs text-slate-500">System Online</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Side: Auth Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 md:p-20 bg-white shadow-[-20px_0_40px_rgba(0,0,0,0.02)]">
-        <div className="w-full max-w-[420px]">
-          <div className="mb-10 lg:hidden flex justify-center">
-             <div className="flex items-center gap-3 text-brand-950">
-              <div className="p-2 bg-brand-600 rounded-lg">
-                <BarChart3 className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold tracking-tight">NexGen</span>
-            </div>
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
-              {isLogin ? "Welcome back" : "Create Account"}
-            </h2>
-            <p className="text-slate-500 mt-2 font-medium">
-              {isLogin 
-                ? "Enter your credentials to access the secure portal." 
-                : "Register to begin projecting millions of policy benefits."}
-            </p>
-          </div>
-
+        {/* Form */}
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={isLogin ? 'login' : 'register'}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
             >
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm font-semibold animate-in fade-in slide-in-from-top-4">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm font-medium"
+                >
+                  <div className="flex-shrink-0 w-2 h-2 rounded-full bg-red-500" />
                   {error}
-                </div>
+                </motion.div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 {!isLogin && (
                   <>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="relative">
-                        <User className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                        <User className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
                         <input name="first_name" type="text" placeholder="First Name" required onChange={handleChange} className={inputClasses}/>
                       </div>
                       <div className="relative">
-                        <User className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                        <User className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
                         <input name="last_name" type="text" placeholder="Last Name" required onChange={handleChange} className={inputClasses}/>
                       </div>
                     </div>
-                    <div className="relative">
-                      <Calendar className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                      <input name="dob" type="date" required onChange={handleChange} className={inputClasses}/>
-                    </div>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                      <input name="mobile_number" type="tel" placeholder="Mobile phone" required onChange={handleChange} className={inputClasses}/>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="relative">
+                        <Calendar className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
+                        <input name="dob" type="date" required onChange={handleChange} className={inputClasses}/>
+                      </div>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
+                        <input name="mobile_number" type="tel" placeholder="Mobile Number" required onChange={handleChange} className={inputClasses}/>
+                      </div>
                     </div>
                   </>
                 )}
 
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                  <Mail className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
                   <input 
                     name="email" 
                     type="email" 
@@ -206,7 +151,7 @@ const Login = () => {
                 </div>
                 
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />
                   <input 
                     name="password" 
                     type="password" 
@@ -218,45 +163,43 @@ const Login = () => {
                   />
                 </div>
 
-                <motion.button 
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
+                <button 
                   type="submit" 
                   disabled={isLoading} 
-                  className="w-full py-3.5 px-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 transition-all flex items-center justify-center gap-2 group disabled:opacity-70 mt-4"
+                  className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl shadow-xl shadow-slate-900/20 hover:bg-slate-800 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:bg-slate-900"
                 >
                   {isLoading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <>
-                      {isLogin ? 'Authenticate Session' : 'Create Secure Profile'}
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      <span className="tracking-wide uppercase text-sm">{isLogin ? 'Authenticate' : 'Create Account'}</span>
+                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
-                </motion.button>
+                </button>
               </form>
 
-              <div className="mt-8 text-center">
-                <p className="text-slate-500 text-sm font-medium">
-                  {isLogin ? "Don't have an account?" : "Already have an identity?"}{' '}
+              <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                <p className="text-slate-500 font-medium text-sm">
+                  {isLogin ? "Require platform access?" : "Already provisioned?"}{' '}
                   <button 
                     type="button" 
                     onClick={() => setIsLogin(!isLogin)} 
-                    className="text-brand-600 hover:text-brand-700 font-bold transition-colors underline underline-offset-4 decoration-2 decoration-brand-500/20 hover:decoration-brand-500"
+                    className="text-slate-900 font-bold hover:text-brand-600 transition-colors"
                   >
-                    {isLogin ? "Get Started" : "Sign In"}
+                    {isLogin ? "Request Access" : "Sign In"}
                   </button>
                 </p>
               </div>
             </motion.div>
           </AnimatePresence>
+        </div>
 
-          <div className="mt-12 text-center">
-             <p className="text-[10px] text-slate-400 font-code mt-8 leading-relaxed">
-              &copy; 2026 NexGen Financial Technologies Ltd. <br />
-              All rights reserved. Strictly confidential.
-            </p>
-          </div>
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-slate-500 text-xs">
+            © 2026 NexGen Financial Technologies
+          </p>
         </div>
       </div>
     </div>

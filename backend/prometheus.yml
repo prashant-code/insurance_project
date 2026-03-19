@@ -8,4 +8,4 @@ scrape_configs:
     static_configs:
       # Target the specific API docker container locally 
       # Note: For host nodemon tracking, target "host.docker.internal:3000"
-      - targets: ['api:3000']
+      - targets: ['api:5000']
