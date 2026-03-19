@@ -1,0 +1,13 @@
+{
+  "name": "benefit-illustration-project",
+  "version": "1.0.0",
+  "description": "Enterprise Benefit Illustration Suite",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "docs:pdf": "node scripts/md_to_pdf.js"
+  },
+  "dependencies": {
+    "md-to-pdf": "^5.2.4"
+  }
+}

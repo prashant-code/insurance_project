@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'benefit-illustration-api'
+    metrics_path: '/metrics'
+    static_configs:
+      # Target the specific API docker container locally 
+      # Note: For host nodemon tracking, target "host.docker.internal:3000"
+      - targets: ['api:3000']

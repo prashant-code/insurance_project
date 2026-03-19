@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # High-Security Proprietary Node API Container
+  # Run this when deploying to Production to trigger code obfuscation.
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_ENGINE=postgres
+      - DATABASE_URL=postgresql://user:password@pgbouncer:6432/benefit_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=production-jwt-secret-replace-me
+      - ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef # AES-256
+    depends_on:
+      - pgbouncer
+      - redis
+    networks:
+      - backend_network
+
+  # Core RDBMS Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: benefit_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Mount the schema automatically so the tables construct on boot
+      - ./schema/db_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432" # Exported so you can query from DBeaver / pgAdmin locally
+    networks:
+      - backend_network
+
+  # Connection Pooler to prevent DB exhaustion during "Bulk Input Millions"
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    environment:
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_HOST: postgres
+      DB_NAME: benefit_db
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 100
+    ports:
+      - "6432:6432" # Local nodemon dev targets this port!
+    depends_on:
+      - postgres
+    networks:
+      - backend_network
+
+  # Pub/Sub, Lua Rate Limiter & Caching
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379" # Local nodemon dev targets this port!
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend_network
+
+  # Prometheus for Metrics endpoint scraping
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - backend_network
+
+networks:
+  backend_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

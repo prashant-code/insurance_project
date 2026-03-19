@@ -1,0 +1,60 @@
+### Health and Service Status
+GET http://localhost:3000/health
+
+### Prometheus Performance Metrics
+GET http://localhost:3000/metrics
+
+### Login (Supports both JSON body and HTTP Basic Auth)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Secure Endpoint Test (Requires JWT from Login)
+POST http://localhost:3000/api/auth/secure-ping
+Authorization: Bearer <YOUR_TOKEN_HERE>
+Content-Type: application/json
+
+{
+  "data": "Hello World"
+}
+
+### Standard Single UI Calculation (Requires JWT)
+POST http://localhost:3000/api/calculations/calculate
+Authorization: Bearer <YOUR_TOKEN_HERE>
+Content-Type: application/json
+
+{
+  "product_id": "00000000-0000-0000-0000-000000000000",
+  "age": 30,
+  "policy_term": 20,
+  "premium_payment_term": 15,
+  "premium_amount": 50000
+}
+
+### Scalable Bulk Calculation Mechanism (Requires JWT)
+POST http://localhost:3000/api/bulk/upload
+Authorization: Bearer <YOUR_TOKEN_HERE>
+Content-Type: application/json
+
+{
+  "calculations": [
+    {
+      "product_id": "01000000-0000-0000-0000-000000000000",
+      "age": 40,
+      "policy_term": 15,
+      "premium_payment_term": 10,
+      "premium_amount": 100000
+    },
+    {
+      "product_id": "02000000-0000-0000-0000-000000000000",
+      "age": 25,
+      "policy_term": 30,
+      "premium_payment_term": 30,
+      "premium_amount": 25000
+    }
+  ]
+}
