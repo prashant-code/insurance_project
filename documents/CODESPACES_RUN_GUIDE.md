@@ -10,8 +10,10 @@ The first time you enter your Codespace, follow this sequence:
 
 1. **Terminal 1 (Infrastructure)**:
    ```bash
-   # In modern Codespaces, use 'docker compose' (no hyphen)
-   docker compose -f .devcontainer/docker-compose.yml up -d
+   # Enter the directory to avoid flag errors
+   cd .devcontainer
+   docker compose up -d
+   cd ..
    ```
    *This launches Postgres, Redis, Prometheus, and Grafana in the cloud.*
 

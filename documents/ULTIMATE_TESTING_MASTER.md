@@ -8,8 +8,10 @@ This master document explains how to launch, monitor, and stress-test the entire
 
 Run this command in the project root to spin up the database, cache, and monitoring tools:
 ```bash
-# In modern systems, use 'docker compose' (no hyphen)
-docker compose -f .devcontainer/docker-compose.yml up -d
+# Enter the config directory first for maximum compatibility
+cd .devcontainer
+docker compose up -d
+cd ..
 ```
 
 ### ✅ Health Check Status:
