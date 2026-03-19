@@ -1,17 +1,14 @@
 # 🚀 ULTIMATE FULL-STACK TESTING GUIDE
 
-This master document explains how to launch, monitor, and stress-test the entire Benefit Illustration system within your GitHub Codespace.
+This master document explains how to launch, monitor, and stress-test the entire Benefit Illustration system in your local environment.
 
 ---
 
 ## 🏗️ 1. Infrastructure Startup
 
-Run this command in the project root to spin up the database, cache, and monitoring tools:
+Run this command in the project root to spin up the database, cache, and monitoring tools using Docker Desktop:
 ```bash
-# Enter the config directory first for maximum compatibility
-cd .devcontainer
 docker compose up -d
-cd ..
 ```
 
 ### ✅ Health Check Status:
@@ -19,8 +16,8 @@ cd ..
 | :--- | :---: | :---: | :--- |
 | **Postgres** | `5432` | `localhost:5432` | `pg_isready -h localhost` |
 | **Redis** | `6379` | `localhost:6379` | `redis-cli ping` |
-| **Prometheus**| `9090` | `Codespace URL:9090` | Check `Status -> Targets` |
-| **Grafana** | `3001` | `Codespace URL:3001` | Login: `admin/admin` |
+| **Prometheus**| `9090` | `localhost:9090` | Check `Status -> Targets` |
+| **Grafana** | `3001` | `localhost:3001` | Login: `admin/admin` |
 
 ---
 
@@ -30,7 +27,7 @@ Open two terminal tabs:
 
 **Tab 1 (API Server):**
 ```bash
-cd backend && npm start
+cd backend && npm run dev
 ```
 
 **Tab 2 (Frontend UI):**
@@ -45,15 +42,15 @@ cd frontend && npm run dev
 Our system exports real-time technical metrics to Prometheus. Here is how to verify them:
 
 ### **A. Prometheus (Raw Data)**
-1. Open the forwarded port `9090`.
+1. Open `http://localhost:9090`.
 2. Type `http_request_duration_seconds_count` in the query box.
 3. Click "Execute". You will see counts for all API hits (login, calculations, etc.).
 
 ### **B. Grafana (Visualization)**
-1. Open port `3001`.
+1. Open `http://localhost:3001`.
 2. Login with `admin / admin`.
-3. **Connect Prometheus**: Go to `Connections -> Data Sources -> Add Prometheus`. Use `http://prometheus:9090` as the URL.
-4. **Import Dashboard**: Import the JSON found in `documents/grafana_dashboard.json` (if available) or create a graph for `rate(http_request_duration_seconds_count[1m])`.
+3. **Connect Prometheus**: Go to `Connections -> Data Sources -> Add Prometheus`. Use `http://prometheus:9090` (if inside docker) or `http://localhost:9090`.
+4. **Import Dashboard**: Import the JSON found in `documents/grafana_dashboard.json`.
 
 ---
 
@@ -73,13 +70,13 @@ npx autocannon -c 50 -d 10 http://localhost:5000/api/calculations
 
 ---
 
-## 🔍 5. Troubleshooting (Deep Dive)
+## 🔍 5. Troubleshooting (Local Environment)
 
 **Q: Connection to Database Refused?**
-*A: Ensure you ran the `db_schema.sql` initialization script (covered in Step 3 of the Launch Checklist).*
+*A: Ensure the Postgres container is running (`docker ps`) and that you have initialized the schema if necessary.*
 
 **Q: Grafana can't find Prometheus?**
-*A: Inside the Codespace, use the internal service name `http://prometheus:9090` instead of `localhost` when adding the Data Source.*
+*A: If running both in Docker, use the service name `http://prometheus:9090`.*
 
-**Q: Port Forwarding not working?**
-*A: Go to the "Ports" tab in VS Code and ensure Port 3000, 5000, 9090, and 3001 are all set to **"Public"**.*
+**Q: Port 5000 or 3000 already in use?**
+*A: Check if another Node process is running using `lsof -i :5000` (Mac/Linux) or `netstat -ano | findstr :5000` (Windows).*

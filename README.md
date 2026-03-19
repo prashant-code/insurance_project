@@ -78,5 +78,20 @@ npm start
 ```
 *If deploying the React frontend, run `npm run build` in the `frontend` directory and serve the `dist` folder.*
 
-## Documentation
-Please check the `documents/` folder for Architecture, Schema, OpenAPI specs, Grafana dashboard configuration, and Security best practices.
+## 🛡️ Failure Management & Resilience (War Cases)
+
+The system is designed to handle failures gracefully at every layer:
+
+| Scenario | Component | Resilience Strategy | Outcome |
+| :--- | :--- | :--- | :--- |
+| **Worker Crash** | API Cluster | Master auto-forks new worker | Zero downtime |
+| **Redis Down** | Cache/Rate Limit | Graceful fallback or fail-fast | Data safety preserved |
+| **DB Overload**| PostgreSQL | Parameterized timeouts & Pooling | Prevents system freeze |
+| **Brute Force**| Security | IP-based Redis Rate Limiting | Blocks attacker at edge |
+| **XSS Attempt** | Frontend | Strict CSP & Sanitization | Script execution blocked |
+
+## 📚 Documentation
+- [Architecture Master](documents/ARCHITECTURE_MASTER.md): Deep dive into Clustering and Job Lifecycles.
+- [Database Deep-Dive](documents/DATABASE_DEEP_DIVE.md): UUIDv7, JSONB, and Performance War Cases.
+- [Security & Resilience](documents/SECURITY_RESILIENCE_MASTER.md): Defense in depth and attack mitigation.
+- [Ultimate Testing Guide](documents/ULTIMATE_TESTING_MASTER.md): Local setup, Stress testing, and Monitoring.

