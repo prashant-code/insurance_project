@@ -89,4 +89,60 @@ router.get('/:batch_id/results', verifyAuth, async (req, res) => {
   }
 });
 
+// Delete a single illustration request by ID (cascades to illustration_results via ON DELETE CASCADE)
+router.delete('/:request_id', verifyAuth, async (req, res) => {
+  const { request_id } = req.params;
+  try {
+    // Ownership check — user can only delete their own requests
+    const check = await db.query(
+      `SELECT id FROM illustration_requests WHERE id = $1 AND user_id = $2`,
+      [request_id, req.user.id]
+    );
+    if (check.rowCount === 0) {
+      return res.status(404).json({ error: 'Request not found or access denied.' });
+    }
+
+    // Deleting the request automatically deletes the linked result
+    // because illustration_results.request_id has ON DELETE CASCADE
+    await db.query(`DELETE FROM illustration_requests WHERE id = $1`, [request_id]);
+
+    logger.info(`[Delete] Request ${request_id} and its result deleted by user ${req.user.id}`);
+    res.json({ message: 'Request and associated result deleted successfully.', request_id });
+  } catch (error) {
+    logger.error('Delete Request Error:', error);
+    res.status(500).json({ error: 'Failed to delete request.' });
+  }
+});
+
+// Delete an entire batch and all its requests + results
+router.delete('/batch/:batch_id', verifyAuth, async (req, res) => {
+  const { batch_id } = req.params;
+  try {
+    // Ownership check — ensure the batch belongs to this user
+    const check = await db.query(
+      `SELECT COUNT(*) FROM illustration_requests WHERE batch_id = $1 AND user_id = $2`,
+      [batch_id, req.user.id]
+    );
+    if (parseInt(check.rows[0].count) === 0) {
+      return res.status(404).json({ error: 'Batch not found or access denied.' });
+    }
+
+    // Delete all requests for this batch — cascade removes all linked results too
+    const result = await db.query(
+      `DELETE FROM illustration_requests WHERE batch_id = $1 AND user_id = $2 RETURNING id`,
+      [batch_id, req.user.id]
+    );
+
+    logger.info(`[Delete] Batch ${batch_id} deleted — ${result.rowCount} requests removed by user ${req.user.id}`);
+    res.json({
+      message: `Batch deleted successfully.`,
+      batch_id,
+      deleted_requests: result.rowCount
+    });
+  } catch (error) {
+    logger.error('Delete Batch Error:', error);
+    res.status(500).json({ error: 'Failed to delete batch.' });
+  }
+});
+
 export default router;
